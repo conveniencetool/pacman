@@ -1,14 +1,16 @@
 const gameArea = document.getElementById('gameArea');
 const scoreDisplay = document.getElementById('score');
+const messageDisplay = document.getElementById('message');
 let score = 0;
-let snake = [{ x: 20, y: 20 }]; // スネークの初期位置
+let snake = [];
 let food = {};
 let direction = { x: 0, y: 0 }; // 初期の移動方向
 let gameInterval;
+let gameStarted = false;
 
 function init() {
     createFood();
-    gameInterval = setInterval(gameLoop, 100); // ゲームループの間隔を設定
+    drawSnake(); // スネークを描画
 }
 
 function createFood() {
@@ -99,37 +101,45 @@ function drawSnake() {
 
 function endGame() {
     clearInterval(gameInterval);
-    alert(`ゲームオーバー！スコア: ${score}`);
+    messageDisplay.textContent = `ゲームオーバー！スコア: ${score}`;
     resetGame();
 }
 
 function resetGame() {
     score = 0;
     scoreDisplay.textContent = score;
-    snake = [{ x: 20, y: 20 }]; // スネークの初期位置
+    snake = [{ x: 200, y: 200 }]; // スネークの初期位置を中央に
     direction = { x: 0, y: 0 };
     gameArea.innerHTML = '';
-    createFood();
+    messageDisplay.textContent = '';
     init();
 }
 
-// キーボード操作
+// スペースキーでゲームを開始
 document.addEventListener('keydown', (event) => {
-    switch (event.key) {
-        case 'ArrowUp':
-            if (direction.y === 0) direction = { x: 0, y: -1 };
-            break;
-        case 'ArrowDown':
-            if (direction.y === 0) direction = { x: 0, y: 1 };
-            break;
-        case 'ArrowLeft':
-            if (direction.x === 0) direction = { x: -1, y: 0 };
-            break;
-        case 'ArrowRight':
-            if (direction.x === 0) direction = { x: 1, y: 0 };
-            break;
+    if (event.key === ' ') {
+        if (!gameStarted) {
+            gameStarted = true;
+            direction = { x: 1, y: 0 }; // 初期の移動方向を右に
+            gameInterval = setInterval(gameLoop, 100); // ゲームループの開始
+        }
+    } else {
+        switch (event.key) {
+            case 'ArrowUp':
+                if (direction.y === 0) direction = { x: 0, y: -1 };
+                break;
+            case 'ArrowDown':
+                if (direction.y === 0) direction = { x: 0, y: 1 };
+                break;
+            case 'ArrowLeft':
+                if (direction.x === 0) direction = { x: -1, y: 0 };
+                break;
+            case 'ArrowRight':
+                if (direction.x === 0) direction = { x: 1, y: 0 };
+                break;
+        }
     }
 });
 
-// ゲーム開始
+// ゲーム開始時に初期設定を行う
 init();
