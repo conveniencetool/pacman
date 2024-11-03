@@ -13,6 +13,7 @@ body {
     margin: 20px auto;
     background-color: #222;
     overflow: hidden;
+    display: none; /* 最初はゲームエリアを非表示 */
 }
 
 .snake {
@@ -23,4 +24,11 @@ body {
 .food {
     background-color: red;
     position: absolute;
+}
+
+#startScreen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* ビューポート全体を使う */
 }
