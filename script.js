@@ -1,60 +1,41 @@
-const gameArea = document.getElementById('gameArea');
-const pacman = document.getElementById('pacman');
-const scoreDisplay = document.getElementById('score');
-let score = 0;
-
-// ドットを配置する関数
-function createDots() {
-    for (let i = 0; i < 20; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'dot';
-        dot.style.position = 'absolute';
-        dot.style.width = '8px';
-        dot.style.height = '8px';
-        dot.style.backgroundColor = 'white';
-        dot.style.borderRadius = '50%';
-        dot.style.left = Math.floor(Math.random() * (gameArea.clientWidth - 8)) + 'px';
-        dot.style.top = Math.floor(Math.random() * (gameArea.clientHeight - 8)) + 'px';
-        dot.onclick = () => eatDot(dot);
-        gameArea.appendChild(dot);
-    }
+body {
+    font-family: Arial, sans-serif;
+    background-color: #000;
+    color: #fff;
+    text-align: center;
 }
 
-// ドットを食べる関数
-function eatDot(dot) {
-    dot.remove();
-    score++;
-    scoreDisplay.textContent = score;
+#gameArea {
+    width: 400px;
+    height: 400px;
+    border: 2px solid #fff;
+    position: relative;
+    margin: 20px auto;
+    background-color: #222;
 }
 
-// パックマンの動きを制御する関数
-document.addEventListener('keydown', (event) => {
-    const pacmanRect = pacman.getBoundingClientRect();
-    const step = 5;
+#pacman {
+    width: 30px;
+    height: 30px;
+    background-color: yellow;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
 
-    switch (event.key) {
-        case 'ArrowUp':
-            if (pacmanRect.top > gameArea.offsetTop) {
-                pacman.style.top = pacman.offsetTop - step + 'px';
-            }
-            break;
-        case 'ArrowDown':
-            if (pacmanRect.bottom < gameArea.offsetTop + gameArea.clientHeight) {
-                pacman.style.top = pacman.offsetTop + step + 'px';
-            }
-            break;
-        case 'ArrowLeft':
-            if (pacmanRect.left > gameArea.offsetLeft) {
-                pacman.style.left = pacman.offsetLeft - step + 'px';
-            }
-            break;
-        case 'ArrowRight':
-            if (pacmanRect.right < gameArea.offsetLeft + gameArea.clientWidth) {
-                pacman.style.left = pacman.offsetLeft + step + 'px';
-            }
-            break;
-    }
-});
+.dot {
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+}
 
-// ドットを生成
-createDots();
+.enemy {
+    width: 30px;
+    height: 30px;
+    background-color: red;
+    border-radius: 50%;
+    position: absolute;
+}
