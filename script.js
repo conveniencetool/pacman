@@ -1,6 +1,7 @@
 const gameArea = document.getElementById('gameArea');
 const scoreDisplay = document.getElementById('score');
 const messageDisplay = document.getElementById('message');
+const startScreen = document.getElementById('startScreen');
 let score = 0;
 let snake = [];
 let food = {};
@@ -47,6 +48,7 @@ function gameLoop() {
         score++;
         scoreDisplay.textContent = score;
         createFood();
+        growSnake(); // スネークを成長させる
     } else {
         removeTail(); // スネークの尻尾を消す
     }
@@ -85,13 +87,21 @@ function removeTail() {
     snake.pop(); // スネークの尻尾を取り除く
 }
 
+function growSnake() {
+    // スネークの先端のサイズを大きくする
+    const head = snake[0];
+    const newSegment = { x: head.x, y: head.y };
+    snake.unshift(newSegment); // 新しいセグメントを追加
+    snake[0].size = (snake[0].size || 1) + 0.5; // サイズを増やす
+}
+
 function drawSnake() {
     gameArea.innerHTML = ''; // スネークを描く前に全ての要素を消去
     snake.forEach(segment => {
         const segmentElement = document.createElement('div');
         segmentElement.className = 'snake';
-        segmentElement.style.width = '20px';
-        segmentElement.style.height = '20px';
+        segmentElement.style.width = (20 * (segment.size || 1)) + 'px'; // サイズを設定
+        segmentElement.style.height = (20 * (segment.size || 1)) + 'px'; // サイズを設定
         segmentElement.style.left = segment.x + 'px';
         segmentElement.style.top = segment.y + 'px';
         gameArea.appendChild(segmentElement);
@@ -108,10 +118,9 @@ function endGame() {
 function resetGame() {
     score = 0;
     scoreDisplay.textContent = score;
-    snake = [{ x: 200, y: 200 }]; // スネークの初期位置を中央に
+    snake = [{ x: 200, y: 200, size: 1 }]; // スネークの初期位置を中央に
     direction = { x: 0, y: 0 };
     gameArea.innerHTML = '';
-    messageDisplay.textContent = '';
     init();
 }
 
@@ -120,6 +129,8 @@ document.addEventListener('keydown', (event) => {
     if (event.key === ' ') {
         if (!gameStarted) {
             gameStarted = true;
+            startScreen.style.display = 'none'; // スタート画面を非表示
+            gameArea.style.display = 'block'; // ゲームエリアを表示
             direction = { x: 1, y: 0 }; // 初期の移動方向を右に
             gameInterval = setInterval(gameLoop, 100); // ゲームループの開始
         }
