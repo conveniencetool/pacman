@@ -1,7 +1,7 @@
 const gameArea = document.getElementById('gameArea');
 const scoreDisplay = document.getElementById('score');
 let score = 0;
-let snake = [{ x: 10, y: 10 }]; // スネークの初期位置
+let snake = [{ x: 20, y: 20 }]; // スネークの初期位置
 let food = {};
 let direction = { x: 0, y: 0 }; // 初期の移動方向
 let gameInterval;
@@ -106,7 +106,7 @@ function endGame() {
 function resetGame() {
     score = 0;
     scoreDisplay.textContent = score;
-    snake = [{ x: 10, y: 10 }];
+    snake = [{ x: 20, y: 20 }]; // スネークの初期位置
     direction = { x: 0, y: 0 };
     gameArea.innerHTML = '';
     createFood();
