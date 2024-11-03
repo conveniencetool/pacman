@@ -5,7 +5,7 @@ const startScreen = document.getElementById('startScreen');
 let score = 0;
 let snake = [];
 let food = {};
-let direction = { x: 0, y: 0 }; // 初期の移動方向
+let direction = { x: 1, y: 0 }; // 初期の移動方向を右に設定
 let gameInterval;
 let gameStarted = false;
 
@@ -13,7 +13,6 @@ function init() {
     snake = [{ x: 200, y: 200, size: 1 }]; // スネークの初期位置を中央に
     score = 0; // スコアをリセット
     scoreDisplay.textContent = score;
-    direction = { x: 0, y: 0 }; // 初期の移動方向をリセット
     gameArea.innerHTML = ''; // ゲームエリアをクリア
     createFood(); // 食べ物を作成
     drawSnake(); // スネークを描画
@@ -123,7 +122,7 @@ function resetGame() {
     score = 0;
     scoreDisplay.textContent = score;
     snake = [{ x: 200, y: 200, size: 1 }]; // スネークの初期位置を中央に
-    direction = { x: 0, y: 0 };
+    direction = { x: 1, y: 0 }; // 初期の移動方向を右に
     gameArea.innerHTML = '';
 }
 
@@ -134,7 +133,7 @@ document.addEventListener('keydown', (event) => {
             gameStarted = true;
             startScreen.style.display = 'none'; // スタート画面を非表示
             gameArea.style.display = 'block'; // ゲームエリアを表示
-            direction = { x: 1, y: 0 }; // 初期の移動方向を右に
+            createFood(); // ゲーム開始時に食べ物を作成
             gameInterval = setInterval(gameLoop, 100); // ゲームループの開始
         }
     } else if (gameStarted) { // ゲームが開始された後の操作
