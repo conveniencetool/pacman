@@ -1,111 +1,135 @@
 const gameArea = document.getElementById('gameArea');
-const pacman = document.getElementById('pacman');
 const scoreDisplay = document.getElementById('score');
-const messageDisplay = document.getElementById('message');
 let score = 0;
-let enemies = [];
+let snake = [{ x: 10, y: 10 }]; // スネークの初期位置
+let food = {};
+let direction = { x: 0, y: 0 }; // 初期の移動方向
+let gameInterval;
 
-// ドットを配置する関数
-function createDots() {
-    for (let i = 0; i < 20; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'dot';
-        dot.style.position = 'absolute';
-        dot.style.left = Math.floor(Math.random() * (gameArea.clientWidth - 8)) + 'px';
-        dot.style.top = Math.floor(Math.random() * (gameArea.clientHeight - 8)) + 'px';
-        dot.onclick = () => eatDot(dot);
-        gameArea.appendChild(dot);
+function init() {
+    createFood();
+    gameInterval = setInterval(gameLoop, 100); // ゲームループの間隔を設定
+}
+
+function createFood() {
+    food.x = Math.floor(Math.random() * 20) * 20;
+    food.y = Math.floor(Math.random() * 20) * 20;
+    if (isFoodOnSnake()) {
+        createFood(); // スネークの上に食べ物が出ないように再生成
+    } else {
+        drawFood();
     }
 }
 
-// ドットを食べる関数
-function eatDot(dot) {
-    dot.remove();
-    score++;
-    scoreDisplay.textContent = score;
+function isFoodOnSnake() {
+    return snake.some(segment => segment.x === food.x && segment.y === food.y);
 }
 
-// 敵を生成する関数
-function createEnemy() {
-    const enemy = document.createElement('div');
-    enemy.className = 'enemy';
-    enemy.style.position = 'absolute';
-    enemy.style.left = Math.floor(Math.random() * (gameArea.clientWidth - 30)) + 'px';
-    enemy.style.top = Math.floor(Math.random() * (gameArea.clientHeight - 30)) + 'px';
-    gameArea.appendChild(enemy);
-    enemies.push(enemy);
+function drawFood() {
+    const foodElement = document.createElement('div');
+    foodElement.className = 'food';
+    foodElement.style.width = '20px';
+    foodElement.style.height = '20px';
+    foodElement.style.left = food.x + 'px';
+    foodElement.style.top = food.y + 'px';
+    gameArea.appendChild(foodElement);
 }
 
-// 敵を動かす関数
-function moveEnemies() {
-    enemies.forEach((enemy) => {
-        const enemyX = Math.random() < 0.5 ? -1 : 1;
-        const enemyY = Math.random() < 0.5 ? -1 : 1;
-        enemy.style.left = (enemy.offsetLeft + enemyX * 2) + 'px';
-        enemy.style.top = (enemy.offsetTop + enemyY * 2) + 'px';
+function gameLoop() {
+    moveSnake();
+    if (checkCollision()) {
+        endGame();
+        return;
+    }
+    if (checkFoodCollision()) {
+        score++;
+        scoreDisplay.textContent = score;
+        createFood();
+    } else {
+        removeTail(); // スネークの尻尾を消す
+    }
+    drawSnake();
+}
 
-        // ゲームオーバーのチェック
-        checkCollision(enemy);
+function moveSnake() {
+    const newHead = {
+        x: snake[0].x + direction.x * 20,
+        y: snake[0].y + direction.y * 20,
+    };
+    snake.unshift(newHead); // 新しい頭を追加
+}
+
+function checkCollision() {
+    const head = snake[0];
+    // 壁との衝突
+    if (head.x < 0 || head.x >= 400 || head.y < 0 || head.y >= 400) {
+        return true;
+    }
+    // 自分自身との衝突
+    for (let i = 1; i < snake.length; i++) {
+        if (head.x === snake[i].x && head.y === snake[i].y) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function checkFoodCollision() {
+    const head = snake[0];
+    return head.x === food.x && head.y === food.y;
+}
+
+function removeTail() {
+    snake.pop(); // スネークの尻尾を取り除く
+}
+
+function drawSnake() {
+    gameArea.innerHTML = ''; // スネークを描く前に全ての要素を消去
+    snake.forEach(segment => {
+        const segmentElement = document.createElement('div');
+        segmentElement.className = 'snake';
+        segmentElement.style.width = '20px';
+        segmentElement.style.height = '20px';
+        segmentElement.style.left = segment.x + 'px';
+        segmentElement.style.top = segment.y + 'px';
+        gameArea.appendChild(segmentElement);
     });
+    drawFood(); // 食べ物を再描画
 }
 
-// ゲームオーバーのチェック関数
-function checkCollision(enemy) {
-    const pacmanRect = pacman.getBoundingClientRect();
-    const enemyRect = enemy.getBoundingClientRect();
-
-    if (
-        pacmanRect.left < enemyRect.right &&
-        pacmanRect.right > enemyRect.left &&
-        pacmanRect.top < enemyRect.bottom &&
-        pacmanRect.bottom > enemyRect.top
-    ) {
-        endGame('敵に捕まった！ゲームオーバー');
-    }
+function endGame() {
+    clearInterval(gameInterval);
+    alert(`ゲームオーバー！スコア: ${score}`);
+    resetGame();
 }
 
-// パックマンの動きを制御する関数
+function resetGame() {
+    score = 0;
+    scoreDisplay.textContent = score;
+    snake = [{ x: 10, y: 10 }];
+    direction = { x: 0, y: 0 };
+    gameArea.innerHTML = '';
+    createFood();
+    init();
+}
+
+// キーボード操作
 document.addEventListener('keydown', (event) => {
-    const pacmanRect = pacman.getBoundingClientRect();
-    const step = 5;
-
     switch (event.key) {
         case 'ArrowUp':
-            if (pacmanRect.top > gameArea.offsetTop) {
-                pacman.style.top = pacman.offsetTop - step + 'px';
-            }
+            if (direction.y === 0) direction = { x: 0, y: -1 };
             break;
         case 'ArrowDown':
-            if (pacmanRect.bottom < gameArea.offsetTop + gameArea.clientHeight) {
-                pacman.style.top = pacman.offsetTop + step + 'px';
-            }
+            if (direction.y === 0) direction = { x: 0, y: 1 };
             break;
         case 'ArrowLeft':
-            if (pacmanRect.left > gameArea.offsetLeft) {
-                pacman.style.left = pacman.offsetLeft - step + 'px';
-            }
+            if (direction.x === 0) direction = { x: -1, y: 0 };
             break;
         case 'ArrowRight':
-            if (pacmanRect.right < gameArea.offsetLeft + gameArea.clientWidth) {
-                pacman.style.left = pacman.offsetLeft + step + 'px';
-            }
+            if (direction.x === 0) direction = { x: 1, y: 0 };
             break;
     }
 });
 
-// ゲームオーバー処理
-function endGame(message) {
-    messageDisplay.textContent = message;
-    clearInterval(enemyMovementInterval);
-}
-
-// 敵の動きのインターバルを設定
-const enemyMovementInterval = setInterval(() => {
-    moveEnemies();
-}, 100);
-
-// ドットを生成し、敵を生成
-createDots();
-for (let i = 0; i < 5; i++) {
-    createEnemy();
-}
+// ゲーム開始
+init();
