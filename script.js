@@ -10,7 +10,12 @@ let gameInterval;
 let gameStarted = false;
 
 function init() {
-    createFood();
+    snake = [{ x: 200, y: 200, size: 1 }]; // スネークの初期位置を中央に
+    score = 0; // スコアをリセット
+    scoreDisplay.textContent = score;
+    direction = { x: 0, y: 0 }; // 初期の移動方向をリセット
+    gameArea.innerHTML = ''; // ゲームエリアをクリア
+    createFood(); // 食べ物を作成
     drawSnake(); // スネークを描画
 }
 
@@ -47,7 +52,7 @@ function gameLoop() {
     if (checkFoodCollision()) {
         score++;
         scoreDisplay.textContent = score;
-        createFood();
+        createFood(); // 食べ物を再生成
         growSnake(); // スネークを成長させる
     } else {
         removeTail(); // スネークの尻尾を消す
@@ -92,7 +97,6 @@ function growSnake() {
     const head = snake[0];
     const newSegment = { x: head.x, y: head.y };
     snake.unshift(newSegment); // 新しいセグメントを追加
-    snake[0].size = (snake[0].size || 1) + 0.5; // サイズを増やす
 }
 
 function drawSnake() {
@@ -121,7 +125,6 @@ function resetGame() {
     snake = [{ x: 200, y: 200, size: 1 }]; // スネークの初期位置を中央に
     direction = { x: 0, y: 0 };
     gameArea.innerHTML = '';
-    init();
 }
 
 // スペースキーでゲームを開始
@@ -134,7 +137,7 @@ document.addEventListener('keydown', (event) => {
             direction = { x: 1, y: 0 }; // 初期の移動方向を右に
             gameInterval = setInterval(gameLoop, 100); // ゲームループの開始
         }
-    } else {
+    } else if (gameStarted) { // ゲームが開始された後の操作
         switch (event.key) {
             case 'ArrowUp':
                 if (direction.y === 0) direction = { x: 0, y: -1 };
